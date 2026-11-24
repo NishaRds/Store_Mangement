@@ -179,6 +179,16 @@ function isValidDateString(str) {
 // Open Endpoints
 // -------------------------------------------------------------
 
+// Root welcome & status check
+app.get('/', (req, res) => {
+  res.json({
+    ok: true,
+    service: 'StockFlow Backend API',
+    status: 'online',
+    healthCheck: '/api/health'
+  });
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ ok: true });
