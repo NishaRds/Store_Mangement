@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StockFlow - Kirana & Store Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="auth.css">
+  <!-- Load API configuration first -->
+  <script src="config.js"></script>
+</head>
+<body>
+
+  <!-- Top bar with Language Selector, Font Selector, and Theme Toggle -->
+  <header class="top-nav">
+    <div class="lang-select-wrapper">
+      <span>Language:</span>
+      <select id="lang-select" class="lang-select" aria-label="Select language">
+        <option value="en">English</option>
+        <option value="kn">ಕನ್ನಡ (Kannada)</option>
+        <option value="hi">हिन्दी (Hindi)</option>
+      </select>
+    </div>
+    <div class="lang-select-wrapper">
+      <span>Font:</span>
+      <select id="login-font-select" class="lang-select" aria-label="Select font">
+        <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta Sans</option>
+        <option value="'Inter', sans-serif">Inter</option>
+        <option value="'Poppins', sans-serif">Poppins</option>
+        <option value="'Outfit', sans-serif">Outfit</option>
+        <option value="'DM Sans', sans-serif">DM Sans</option>
+        <option value="'Space Grotesk', sans-serif">Space Grotesk</option>
+        <option value="'Lora', Georgia, serif">Lora (Serif)</option>
+        <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
+      </select>
+    </div>
+    <div class="lang-select-wrapper" style="cursor: pointer;" id="theme-toggle" title="Toggle Light/Dark Theme">
+      <span id="theme-text">Dark Mode</span>
+    </div>
+  </header>
+
+  <!-- Auth Card Container -->
+  <main class="auth-container">
+    
+    <!-- Brand Header -->
+    <div class="brand-header">
+      <div class="brand-logo">SF</div>
+      <h1 class="brand-title">StockFlow</h1>
+      <p class="brand-subtitle" data-i18n="tagline">Kirana & General Store Management</p>
+    </div>
+
+    <!-- Alert / Notification Message Box -->
+    <div id="auth-alert" class="auth-alert" role="alert">
+      <span id="alert-text"></span>
+    </div>
+
+    <!-- 1. LOGIN VIEW (Opens First) -->
+    <section id="view-login" class="auth-view active">
+      <form id="form-login" novalidate>
+        <div class="form-group">
+          <label for="login-username" class="form-label" data-i18n="usernameOrEmail">Username or Email</label>
+          <div class="input-wrapper">
+            <input type="text" id="login-username" class="form-input" required autocomplete="username" data-i18n-ph="phUsernameOrEmail" placeholder="Enter username or email">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="login-password" class="form-label" data-i18n="password">Password</label>
+          <div class="input-wrapper">
+            <input type="password" id="login-password" class="form-input" required autocomplete="current-password" data-i18n-ph="phPassword" placeholder="Enter password">
+            <button type="button" class="eye-btn" onclick="togglePasswordVisibility('login-password', this)" title="Show/Hide Password" aria-label="Show password">Show</button>
+          </div>
+        </div>
+
+        <div class="auth-links" style="margin-bottom: 1.25rem;">
+          <a href="#" class="auth-link" id="link-forgot" data-i18n="forgotPassword">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn-primary" id="btn-login-submit">
+          <span data-i18n="signIn">Sign In</span>
+        </button>
+
+        <p class="center-text">
+          <span data-i18n="newUser">New user?</span> 
+          <a href="#" class="auth-link" id="link-register" data-i18n="registerHere">Register here</a>
+        </p>
+      </form>
+    </section>
+
+    <!-- 2. REGISTER VIEW (3-Step Form with Tabs) -->
+    <section id="view-register" class="auth-view">
+      <h2 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 1.2rem; color: var(--primary-green); text-align: center; letter-spacing: -0.02em;" data-i18n="registerShopTitle">Create Shop Account</h2>
+
+      <!-- 3-Step Navigation Tabs -->
+      <nav class="step-tabs">
+        <div class="step-tab active" id="tab-step-1">
+          <div class="step-num">1</div>
+          <span class="step-label" data-i18n="tabBasic">Basic</span>
+        </div>
+        <div class="step-tab" id="tab-step-2">
+          <div class="step-num">2</div>
+          <span class="step-label" data-i18n="tabContact">Contact</span>
+        </div>
+        <div class="step-tab" id="tab-step-3">
+          <div class="step-num">3</div>
+          <span class="step-label" data-i18n="tabAccount">Account</span>
+        </div>
+      </nav>
+
+      <form id="form-register" novalidate>
+        <!-- Step 1: Basic Details -->
+        <fieldset class="step-pane active" id="pane-step-1" style="border:none;">
+          <div class="form-group">
+            <label for="reg-shopName" class="form-label" data-i18n="shopName">Shop Name *</label>
+            <input type="text" id="reg-shopName" class="form-input" required data-i18n-ph="phShopName" placeholder="e.g. Laxmi General Store">
+          </div>
+
+          <div class="form-group">
+            <label for="reg-ownerName" class="form-label" data-i18n="ownerName">Owner Name *</label>
+            <input type="text" id="reg-ownerName" class="form-input" required data-i18n-ph="phOwnerName" placeholder="e.g. Ramesh Kumar">
+          </div>
+
+          <div class="form-group">
+            <label for="reg-shopType" class="form-label" data-i18n="shopType">Shop Type</label>
+            <select id="reg-shopType" class="form-input" style="cursor: pointer;">
+              <option value="Grocery" data-i18n="optGrocery">Grocery (Kirana)</option>
+              <option value="General Store" data-i18n="optGeneralStore" selected>General Store</option>
+              <option value="Clothing" data-i18n="optClothing">Clothing</option>
+              <option value="Electronics" data-i18n="optElectronics">Electronics</option>
+              <option value="Other" data-i18n="optOther">Other</option>
+            </select>
+          </div>
+
+          <div class="step-actions">
+            <button type="button" class="btn-secondary" id="reg-back-to-login" style="width: 45%;" data-i18n="cancel">Cancel</button>
+            <button type="button" class="btn-primary" id="reg-next-1" style="width: 50%;" data-i18n="next">Next</button>
+          </div>
+        </fieldset>
+
+        <!-- Step 2: Contact Details -->
+        <fieldset class="step-pane" id="pane-step-2" style="border:none;">
+          <div class="form-group">
+            <label for="reg-ownerPhone" class="form-label" data-i18n="ownerPhone">Owner's Phone Number *</label>
+            <input type="tel" id="reg-ownerPhone" class="form-input" required data-i18n-ph="phOwnerPhone" placeholder="10-digit mobile number">
+          </div>
+
+          <div class="form-group">
+            <label for="reg-phone" class="form-label" data-i18n="shopContactPhone">Shop Contact Number</label>
+            <input type="tel" id="reg-phone" class="form-input" data-i18n-ph="phShopPhone" placeholder="Landline or mobile">
+          </div>
+
+          <div class="form-group">
+            <label for="reg-address" class="form-label" data-i18n="shopAddress">Shop Address</label>
+            <input type="text" id="reg-address" class="form-input" data-i18n-ph="phShopAddress" placeholder="Street, Market, Area">
+          </div>
+
+          <div class="form-group">
+            <label for="reg-pincode" class="form-label" data-i18n="pincode">Pincode</label>
+            <input type="text" id="reg-pincode" class="form-input" maxlength="6" data-i18n-ph="phPincode" placeholder="6-digit pincode">
+          </div>
+
+          <div class="step-actions">
+            <button type="button" class="btn-secondary" id="reg-prev-2" style="width: 45%;" data-i18n="back">Back</button>
+            <button type="button" class="btn-primary" id="reg-next-2" style="width: 50%;" data-i18n="next">Next</button>
+          </div>
+        </fieldset>
+
+        <!-- Step 3: Account Details -->
+        <fieldset class="step-pane" id="pane-step-3" style="border:none;">
+          <div class="form-group">
+            <label for="reg-email" class="form-label" data-i18n="email">Email Address *</label>
+            <input type="email" id="reg-email" class="form-input" required autocomplete="email" data-i18n-ph="phEmail" placeholder="name@example.com">
+          </div>
+
+          <div class="form-group">
+            <label for="reg-username" class="form-label" data-i18n="username">Username (min. 3 characters) *</label>
+            <input type="text" id="reg-username" class="form-input" required autocomplete="username" data-i18n-ph="phUsername" placeholder="Unique username">
+          </div>
+
+          <div class="form-group">
+            <label for="reg-password" class="form-label" data-i18n="passwordMin6">Password (min. 6 characters) *</label>
+            <div class="input-wrapper">
+              <input type="password" id="reg-password" class="form-input" required autocomplete="new-password" data-i18n-ph="phPassword" placeholder="Enter secure password">
+              <button type="button" class="eye-btn" onclick="togglePasswordVisibility('reg-password', this)" title="Show/Hide Password" aria-label="Show password">Show</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="reg-confirmPassword" class="form-label" data-i18n="confirmPassword">Confirm Password *</label>
+            <div class="input-wrapper">
+              <input type="password" id="reg-confirmPassword" class="form-input" required autocomplete="new-password" data-i18n-ph="phConfirmPassword" placeholder="Re-enter password">
+              <button type="button" class="eye-btn" onclick="togglePasswordVisibility('reg-confirmPassword', this)" title="Show/Hide Password" aria-label="Show password">Show</button>
+            </div>
+          </div>
+
+          <div class="step-actions">
+            <button type="button" class="btn-secondary" id="reg-prev-3" style="width: 40%;" data-i18n="back">Back</button>
+            <button type="submit" class="btn-primary" id="btn-register-submit" style="width: 55%;" data-i18n="submitRegister">Complete Registration</button>
+          </div>
+        </fieldset>
+      </form>
+
+      <p class="center-text">
+        <span data-i18n="alreadyHaveAccount">Already registered?</span> 
+        <a href="#" class="auth-link" id="link-to-login-from-reg" data-i18n="signIn">Sign In</a>
+      </p>
+    </section>
+
+    <!-- 3. FORGOT PASSWORD VIEW -->
+    <section id="view-forgot" class="auth-view">
+      <h2 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--primary-green); text-align: center; letter-spacing: -0.02em;" data-i18n="forgotTitle">Password Recovery</h2>
+      <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-bottom: 1.25rem;" data-i18n="forgotDesc">
+        Enter your registered email address to receive a demo verification reset code.
+      </p>
+
+      <form id="form-forgot" novalidate>
+        <div id="forgot-stage-1">
+          <div class="form-group">
+            <label for="forgot-email" class="form-label" data-i18n="email">Registered Email</label>
+            <input type="email" id="forgot-email" class="form-input" required data-i18n-ph="phEmail" placeholder="name@example.com">
+          </div>
+          <button type="button" class="btn-primary" id="btn-request-code" style="margin-top: 1rem;">
+            <span data-i18n="generateCode">Get Demo Reset Code</span>
+          </button>
+        </div>
+
+        <div id="forgot-stage-2" style="display: none; margin-top: 1rem;">
+          <div class="demo-code-box">
+            <div class="label" data-i18n="demoCodeLabel">Demo Verification Code</div>
+            <div class="code" id="display-demo-code">------</div>
+          </div>
+
+          <div class="form-group">
+            <label for="forgot-code" class="form-label" data-i18n="enterCode">Enter Verification Code</label>
+            <input type="text" id="forgot-code" class="form-input" required maxlength="6" placeholder="6-digit code">
+          </div>
+
+          <div class="form-group">
+            <label for="forgot-newPassword" class="form-label" data-i18n="newPassword">New Password (min 6 characters)</label>
+            <div class="input-wrapper">
+              <input type="password" id="forgot-newPassword" class="form-input" required placeholder="New password">
+              <button type="button" class="eye-btn" onclick="togglePasswordVisibility('forgot-newPassword', this)" title="Show/Hide Password">Show</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="forgot-confirmPassword" class="form-label" data-i18n="confirmPassword">Confirm New Password</label>
+            <div class="input-wrapper">
+              <input type="password" id="forgot-confirmPassword" class="form-input" required placeholder="Re-enter new password">
+              <button type="button" class="eye-btn" onclick="togglePasswordVisibility('forgot-confirmPassword', this)" title="Show/Hide Password">Show</button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary" id="btn-reset-password">
+            <span data-i18n="saveNewPassword">Save New Password</span>
+          </button>
+        </div>
+      </form>
+
+      <p class="center-text">
+        <a href="#" class="auth-link" id="link-back-from-forgot" data-i18n="backToLogin">Back to Sign In</a>
+      </p>
+    </section>
+
+  </main>
+
+  <script src="auth.js"></script>
+</body>
+</html>

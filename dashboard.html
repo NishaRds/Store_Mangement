@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StockFlow Dashboard - Kirana & Store Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="style.css">
+  <!-- Load API configuration -->
+  <script src="config.js"></script>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Left Sidebar -->
+    <aside class="sidebar" id="app-sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">SF</div>
+        <div class="sidebar-brand">
+          <h2>StockFlow</h2>
+          <p id="sidebar-shop-type">Store Management</p>
+        </div>
+      </div>
+
+      <!-- Navigation links without emojis -->
+      <ul class="sidebar-menu">
+        <li class="menu-item">
+          <a class="menu-link" data-view="dashboard" id="nav-home" onclick="navigateToView('dashboard')">
+            <span>Home</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link active" data-view="dashboard" id="nav-dashboard">
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" data-view="billing" id="nav-billing">
+            <span>Billing (POS)</span>
+          </a>
+        </li>
+        <li class="menu-item owner-only">
+          <a class="menu-link" data-view="inventory" id="nav-inventory">
+            <span>Inventory</span>
+          </a>
+        </li>
+        <li class="menu-item owner-only">
+          <a class="menu-link" data-view="customers" id="nav-customers">
+            <span>Customers & Udhaar</span>
+          </a>
+        </li>
+        <li class="menu-item owner-only">
+          <a class="menu-link" data-view="sales" id="nav-sales">
+            <span>Sales History</span>
+          </a>
+        </li>
+        <li class="menu-item owner-only">
+          <a class="menu-link" data-view="staff" id="nav-staff">
+            <span>Staff Management</span>
+          </a>
+        </li>
+        <li class="menu-item">
+          <a class="menu-link" data-view="settings" id="nav-settings">
+            <span>Settings</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- User Info & Logout -->
+      <div class="sidebar-footer">
+        <div class="user-badge">
+          <div class="user-avatar" id="user-avatar-char">O</div>
+          <div class="user-info">
+            <div class="user-name" id="user-display-name">Owner</div>
+            <div class="user-role" id="user-display-role">Shop Owner</div>
+          </div>
+        </div>
+        <button class="btn btn-outline" id="btn-logout" style="width: 100%;">
+          Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-wrapper">
+      
+      <!-- Sticky Topbar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="menu-toggle-btn" id="sidebar-toggle" aria-label="Toggle menu">Menu</button>
+          <h1 class="page-title" id="page-heading">Dashboard</h1>
+        </div>
+
+        <div class="topbar-right">
+          <button class="btn btn-sm btn-primary" onclick="navigateToView('billing')" id="topbar-create-bill" style="font-weight: 700;">Create Bill</button>
+          <div class="shop-badge">
+            <span id="header-shop-name">My Store</span>
+          </div>
+          <button class="btn btn-sm btn-outline" id="theme-btn" title="Toggle Theme">Dark Mode</button>
+        </div>
+      </header>
+
+      <!-- Content Views Body -->
+      <main class="content-body">
+
+        <!-- ========================================================
+             1. DASHBOARD VIEW
+             ======================================================== -->
+        <section id="view-dashboard" class="view-section active">
+          <!-- Greeting banner with Quick Create Bill Action -->
+          <div class="card-box" style="background: linear-gradient(135deg, var(--card-bg), var(--primary-green-light)); margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <h2 style="font-size: 1.35rem; color: var(--primary-green); margin-bottom: 0.35rem;" id="dashboard-greeting">
+                Welcome back!
+              </h2>
+              <p style="color: var(--text-muted); font-size: 0.88rem;">
+                Overview of daily sales, weekly trends, inventory alerts, and pending customer credits.
+              </p>
+            </div>
+            <button class="btn btn-primary" onclick="navigateToView('billing')" style="padding: 0.75rem 1.4rem; font-size: 0.92rem; font-weight: 700; box-shadow: 0 4px 12px rgba(40, 81, 63, 0.25);">
+              Create Bill
+            </button>
+          </div>
+
+          <!-- Top Stat Cards (Clean, No Emojis) -->
+          <div class="cards-grid">
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-title">Today's Sales</span>
+              </div>
+              <div class="stat-value" id="stat-today-sales">₹0.00</div>
+              <div class="stat-desc" id="stat-today-bills">0 bills generated today</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-title">Weekly Sold Units</span>
+              </div>
+              <div class="stat-value" id="stat-weekly-units">0</div>
+              <div class="stat-desc">Units sold in last 7 days</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-title">Stock Alerts</span>
+              </div>
+              <div class="stat-value" id="stat-low-stock" style="color: var(--accent-orange);">0</div>
+              <div class="stat-desc">Items at or below low limit</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-title">Pending Udhaar</span>
+              </div>
+              <div class="stat-value" id="stat-pending-udhaar" style="color: var(--accent-red);">₹0.00</div>
+              <div class="stat-desc">Total unpaid customer balance</div>
+            </div>
+          </div>
+
+          <!-- Weekly Sales Line Chart Card -->
+          <div class="card-box">
+            <div class="card-box-header">
+              <h3 class="card-box-title">Weekly Sales Trend (Units Sold per Day)</h3>
+              <span class="badge badge-success">Last 7 Days</span>
+            </div>
+            <div class="chart-container" id="weekly-chart-wrapper">
+              <svg id="weekly-sales-chart" width="100%" height="240" viewBox="0 0 700 240"></svg>
+            </div>
+          </div>
+
+          <!-- Two-column Grid for Alerts & Activity -->
+          <div class="grid-2">
+            
+            <!-- Stock Alerts List -->
+            <div class="card-box">
+              <div class="card-box-header">
+                <h3 class="card-box-title">Low Stock Alerts</h3>
+                <span class="badge badge-warning" id="badge-low-stock-count">0 items</span>
+              </div>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Qty Left</th>
+                      <th>Limit</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dash-low-stock-tbody">
+                    <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No low-stock items</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Expiring-Soon Products -->
+            <div class="card-box">
+              <div class="card-box-header">
+                <h3 class="card-box-title">Expiring Soon / Expired</h3>
+                <span class="badge badge-danger" id="badge-expiring-count">0 items</span>
+              </div>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Expiry</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dash-expiring-tbody">
+                    <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">No products expiring soon</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Recent Sales & Pending Payments Grid -->
+          <div class="grid-2">
+            
+            <!-- Recent Sales -->
+            <div class="card-box">
+              <div class="card-box-header">
+                <h3 class="card-box-title">Recent Transactions</h3>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button class="btn btn-sm btn-primary" onclick="navigateToView('billing')">Create Bill</button>
+                  <button class="btn btn-sm btn-outline" onclick="navigateToView('sales')">View All</button>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Bill ID</th>
+                      <th>Customer</th>
+                      <th>Amount</th>
+                      <th>Payment</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dash-recent-sales-tbody">
+                    <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No recent sales</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Pending Payments (Udhaar Breakdown) -->
+            <div class="card-box">
+              <div class="card-box-header">
+                <h3 class="card-box-title">Pending Customer Udhaar</h3>
+                <span class="badge badge-danger" id="dash-total-udhaar-badge">Total: ₹0</span>
+              </div>
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Customer</th>
+                      <th>Phone</th>
+                      <th>Owed (₹)</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dash-pending-payments-tbody">
+                    <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No pending customer balances</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ========================================================
+             2. INVENTORY VIEW (Owner Only)
+             ======================================================== -->
+        <section id="view-inventory" class="view-section">
+          <div class="card-box">
+            <div class="card-box-header">
+              <div>
+                <h2 class="card-box-title">Product Inventory</h2>
+                <p style="font-size: 0.82rem; color: var(--text-muted);">
+                  Manage store products, stock levels, categories, and expiry dates.
+                </p>
+              </div>
+              <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+                <button class="btn btn-primary" id="btn-add-product">
+                  Add Product
+                </button>
+                <button class="btn btn-orange" id="btn-import-csv">
+                  Import CSV
+                </button>
+                <input type="file" id="csv-file-input" accept=".csv" style="display: none;">
+              </div>
+            </div>
+
+            <!-- Filter & Search Bar -->
+            <div class="filter-bar">
+              <input type="text" id="inventory-search" class="search-input" placeholder="Search product by name...">
+              <select id="inventory-category-filter" class="filter-select">
+                <option value="ALL">All Categories</option>
+              </select>
+              <select id="inventory-stock-filter" class="filter-select">
+                <option value="ALL">All Stock Status</option>
+                <option value="LOW">Low Stock Only</option>
+                <option value="OUT">Out of Stock</option>
+                <option value="EXPIRED">Expired</option>
+              </select>
+            </div>
+
+            <!-- Inventory Table -->
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>Price (₹)</th>
+                    <th>Stock Qty</th>
+                    <th>Low Limit</th>
+                    <th>Expiry Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="inventory-table-tbody">
+                  <!-- Populated by app.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================================
+             3. BILLING VIEW (Available to Owner & Staff)
+             ======================================================== -->
+        <section id="view-billing" class="view-section">
+          <div class="billing-layout">
+            
+            <!-- Left: Product Catalog Selection -->
+            <div class="card-box" style="margin-bottom: 0;">
+              <div class="card-box-header">
+                <h3 class="card-box-title">Product Catalog</h3>
+                <span class="badge badge-success" id="catalog-count-badge">0 Products</span>
+              </div>
+
+              <!-- Search and Category Filters -->
+              <div class="filter-bar">
+                <input type="text" id="billing-search" class="search-input" placeholder="Search items to add to bill...">
+                <select id="billing-category-filter" class="filter-select">
+                  <option value="ALL">All Categories</option>
+                </select>
+              </div>
+
+              <!-- Catalog Grid of Clickable Cards -->
+              <div class="catalog-grid" id="billing-catalog-grid">
+                <!-- Populated dynamically by app.js -->
+              </div>
+            </div>
+
+            <!-- Right: Bill Cart & Checkout Panel -->
+            <div class="cart-panel">
+              <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--primary-green); margin-bottom: 0.8rem;">
+                Current Invoice
+              </h3>
+
+              <!-- Customer Selection Input -->
+              <div style="margin-bottom: 0.75rem;">
+                <label style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 0.3rem;">
+                  Customer Name
+                </label>
+                <input type="text" id="bill-customer-name" class="search-input" style="width: 100%;" placeholder="Type customer name (Walk-in)..." list="customer-datalist">
+                <datalist id="customer-datalist"></datalist>
+                <input type="tel" id="bill-customer-phone" class="search-input" style="width: 100%; margin-top: 0.4rem; font-size: 0.82rem;" placeholder="Customer phone (optional)">
+              </div>
+
+              <!-- Items in cart -->
+              <div class="cart-items-list" id="cart-items-container">
+                <div style="text-align: center; color: var(--text-muted); padding: 2rem 0;">
+                  Cart is empty.<br>Click items from catalog to add.
+                </div>
+              </div>
+
+              <!-- Cart Totals & Payment Section -->
+              <div class="cart-summary">
+                <div class="summary-row">
+                  <span>Items Count:</span>
+                  <span id="bill-items-count">0 items (0 units)</span>
+                </div>
+                <div class="summary-row total">
+                  <span>Grand Total:</span>
+                  <span id="bill-grand-total">₹0.00</span>
+                </div>
+
+                <!-- Payment Selection -->
+                <div style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--border-color);">
+                  <label style="font-size: 0.82rem; font-weight: 700; display: block; margin-bottom: 0.4rem;">
+                    Payment Type:
+                  </label>
+                  <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+                    <label style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.86rem; cursor: pointer;">
+                      <input type="radio" name="payment-type" value="full" checked id="pay-type-full">
+                      Full Payment
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.86rem; cursor: pointer;">
+                      <input type="radio" name="payment-type" value="partial" id="pay-type-partial">
+                      Partial (Udhaar)
+                    </label>
+                  </div>
+
+                  <!-- Partial Amount Paid Input -->
+                  <div id="partial-payment-box" style="display: none; margin-bottom: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                      <span style="font-size: 0.8rem; font-weight: 600;">Amount Received Now (₹):</span>
+                      <span style="font-size: 0.8rem; color: var(--accent-red); font-weight: 700;" id="bill-udhaar-pending">Udhaar: ₹0.00</span>
+                    </div>
+                    <input type="number" id="bill-amount-paid" class="search-input" style="width: 100%;" min="0" step="any" placeholder="Enter amount received">
+                  </div>
+
+                  <!-- Checkout & Receipt Action Buttons -->
+                  <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-outline" id="btn-clear-cart" style="width: 35%;">Clear</button>
+                    <button class="btn btn-primary" id="btn-generate-bill" style="width: 65%;">
+                      Complete & Print
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ========================================================
+             4. CUSTOMERS & UDHAAR VIEW (Owner Only)
+             ======================================================== -->
+        <section id="view-customers" class="view-section">
+          <div class="card-box">
+            <div class="card-box-header">
+              <div>
+                <h2 class="card-box-title">Customers & Udhaar Ledger</h2>
+                <p style="font-size: 0.82rem; color: var(--text-muted);">
+                  Track customer purchases, pending credit, and receive payments.
+                </p>
+              </div>
+              <button class="btn btn-primary" id="btn-add-customer-modal">
+                Add Customer
+              </button>
+            </div>
+
+            <!-- Customer search -->
+            <div class="filter-bar">
+              <input type="text" id="customer-search-input" class="search-input" placeholder="Search customer by name or phone...">
+            </div>
+
+            <!-- Customers Table -->
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Customer Name</th>
+                    <th>Phone</th>
+                    <th>Total Bills</th>
+                    <th>Total Billed (₹)</th>
+                    <th>Total Paid (₹)</th>
+                    <th>Pending Udhaar (₹)</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="customers-table-tbody">
+                  <!-- Populated by app.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================================
+             5. SALES HISTORY VIEW (Owner Only)
+             ======================================================== -->
+        <section id="view-sales" class="view-section">
+          <div class="card-box">
+            <div class="card-box-header">
+              <div>
+                <h2 class="card-box-title">Sales History & Reports</h2>
+                <p style="font-size: 0.82rem; color: var(--text-muted);">
+                  View past invoices, cancel bills with automatic stock return, and export records.
+                </p>
+              </div>
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button class="btn btn-outline" id="btn-daily-closing-report">
+                  Daily Closing Report
+                </button>
+                <button class="btn btn-orange" id="btn-export-sales-csv">
+                  Export to CSV
+                </button>
+              </div>
+            </div>
+
+            <!-- Filter bar -->
+            <div class="filter-bar">
+              <input type="text" id="sales-search-input" class="search-input" placeholder="Search by Bill ID or Customer...">
+              <input type="date" id="sales-date-filter" class="filter-select">
+            </div>
+
+            <!-- Sales Records Table -->
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Bill ID</th>
+                    <th>Date & Time</th>
+                    <th>Customer</th>
+                    <th>Items</th>
+                    <th>Total (₹)</th>
+                    <th>Paid (₹)</th>
+                    <th>Udhaar (₹)</th>
+                    <th>Billed By</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="sales-table-tbody">
+                  <!-- Populated by app.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================================
+             6. STAFF MANAGEMENT VIEW (Owner Only)
+             ======================================================== -->
+        <section id="view-staff" class="view-section">
+          <div class="card-box">
+            <div class="card-box-header">
+              <div>
+                <h2 class="card-box-title">Staff Accounts</h2>
+                <p style="font-size: 0.82rem; color: var(--text-muted);">
+                  Manage billing staff. Staff can only access the billing screen. Removed staff are blocked immediately.
+                </p>
+              </div>
+              <button class="btn btn-primary" id="btn-add-staff-modal">
+                Create Staff Account
+              </button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Staff Name</th>
+                    <th>Username</th>
+                    <th>Phone</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="staff-table-tbody">
+                  <!-- Populated by app.js -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========================================================
+             7. SETTINGS VIEW
+             ======================================================== -->
+        <section id="view-settings" class="view-section">
+          <div class="card-box" style="max-width: 640px;">
+            <h2 class="card-box-title" style="margin-bottom: 1.25rem;">Application Settings</h2>
+
+            <!-- Theme Setting -->
+            <div style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+              <label style="font-weight: 600; display: block; margin-bottom: 0.4rem;">Color Theme</label>
+              <div style="display: flex; gap: 1rem;">
+                <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+                  <input type="radio" name="setting-theme" value="light" id="theme-radio-light" checked>
+                  Light (Calm Green & Cream)
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+                  <input type="radio" name="setting-theme" value="dark" id="theme-radio-dark">
+                  Dark (Deep Green)
+                </label>
+              </div>
+            </div>
+
+            <!-- Font Size Setting -->
+            <div style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+              <label style="font-weight: 600; display: block; margin-bottom: 0.4rem;">Font Size</label>
+              <select id="setting-font-size" class="filter-select" style="width: 200px;">
+                <option value="14px">Small (14px)</option>
+                <option value="15px" selected>Normal (15px)</option>
+                <option value="16.5px">Large (16.5px)</option>
+              </select>
+            </div>
+
+            <!-- Font Family Style Setting -->
+            <div style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+              <label style="font-weight: 600; display: block; margin-bottom: 0.4rem;">Font Style</label>
+              <select id="setting-font-family" class="filter-select" style="width: 320px;">
+                <option value="'Plus Jakarta Sans', sans-serif" selected>Plus Jakarta Sans (Modern Geometric)</option>
+                <option value="'Inter', sans-serif">Inter (Clean Corporate UI)</option>
+                <option value="'Poppins', sans-serif">Poppins (Friendly & Modern Geometric)</option>
+                <option value="'Outfit', sans-serif">Outfit (Contemporary & Minimal)</option>
+                <option value="'DM Sans', sans-serif">DM Sans (Crisp & High-Legibility)</option>
+                <option value="'Space Grotesk', sans-serif">Space Grotesk (Tech & Distinctive)</option>
+                <option value="'Lora', Georgia, serif">Lora (Classic Editorial Serif)</option>
+                <option value="'JetBrains Mono', monospace">JetBrains Mono (Receipt & Monospace)</option>
+                <option value="'Segoe UI', Tahoma, Geneva, sans-serif">Segoe UI (Windows Native)</option>
+                <option value="-apple-system, BlinkMacSystemFont, sans-serif">System Native (Default)</option>
+              </select>
+            </div>
+
+            <!-- Store Details Info -->
+            <div style="margin-top: 1rem;">
+              <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--primary-green);">Store Profile</h3>
+              <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;" id="settings-store-info">
+                Loading store details...
+              </p>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MODALS
+       ======================================================== -->
+
+  <!-- 1. Add / Edit Product Modal -->
+  <div class="modal-overlay" id="modal-product">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-product-title">Add New Product</h3>
+        <button class="modal-close" onclick="closeModal('modal-product')">Close</button>
+      </div>
+      <form id="form-product">
+        <input type="hidden" id="prod-id">
+        <div style="margin-bottom: 1rem;">
+          <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">Product Name *</label>
+          <input type="text" id="prod-name" class="search-input" style="width: 100%;" required placeholder="e.g. Tata Salt 1kg">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+          <div>
+            <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">Category</label>
+            <input type="text" id="prod-category" class="search-input" style="width: 100%;" placeholder="e.g. Grocery" list="category-list">
+            <datalist id="category-list">
+              <option value="Grocery">
+              <option value="Spices">
+              <option value="Dairy">
+              <option value="Snacks">
+              <option value="Beverages">
+              <option value="Personal Care">
+              <option value="Household">
+            </datalist>
+          </div>
+          <div>
+            <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">Price (₹) *</label>
+            <input type="number" id="prod-price" class="search-input" style="width: 100%;" step="any" min="0" required placeholder="0.00">
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+          <div>
+            <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">Quantity *</label>
+            <input type="number" id="prod-qty" class="search-input" style="width: 100%;" min="0" step="1" required placeholder="e.g. 20">
+          </div>
+          <div>
+            <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">Low-Stock Limit</label>
+            <input type="number" id="prod-lowLimit" class="search-input" style="width: 100%;" min="0" step="1" value="5" placeholder="5">
+          </div>
+        </div>
+        <div style="margin-bottom: 1.5rem;">
+          <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">
+            Expiry Date (dd-mm-yyyy)
+          </label>
+          <input type="text" id="prod-expiry" class="search-input" style="width: 100%;" placeholder="e.g. 25-12-2026" maxlength="10">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-product')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-product">Save Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Set Expiry & Quick Restock Modal -->
+  <div class="modal-overlay" id="modal-restock-expiry">
+    <div class="modal-content" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-quick-title">Update Stock & Expiry</h3>
+        <button class="modal-close" onclick="closeModal('modal-restock-expiry')">Close</button>
+      </div>
+      <form id="form-quick-update">
+        <input type="hidden" id="quick-prod-id">
+        <div style="margin-bottom: 1rem;">
+          <div style="font-size: 0.95rem; font-weight: 700;" id="quick-prod-name">Product Name</div>
+          <div style="font-size: 0.82rem; color: var(--text-muted);" id="quick-prod-current">Current Stock: 0 units</div>
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">Add Restock Quantity (+)</label>
+          <input type="number" id="quick-add-qty" class="search-input" style="width: 100%;" min="0" step="1" value="0" placeholder="Number of units added">
+        </div>
+        <div style="margin-bottom: 1.5rem;">
+          <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">Set Expiry Date (dd-mm-yyyy)</label>
+          <input type="text" id="quick-expiry" class="search-input" style="width: 100%;" placeholder="dd-mm-yyyy" maxlength="10">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-restock-expiry')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Add Customer Modal -->
+  <div class="modal-overlay" id="modal-customer">
+    <div class="modal-content" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Add New Customer</h3>
+        <button class="modal-close" onclick="closeModal('modal-customer')">Close</button>
+      </div>
+      <form id="form-customer">
+        <div style="margin-bottom: 1rem;">
+          <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">Customer Name *</label>
+          <input type="text" id="cust-name" class="search-input" style="width: 100%;" required placeholder="Full Name">
+        </div>
+        <div style="margin-bottom: 1.5rem;">
+          <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">Mobile Phone</label>
+          <input type="tel" id="cust-phone" class="search-input" style="width: 100%;" placeholder="10-digit phone number">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-customer')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Customer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Receive Customer Payment Modal -->
+  <div class="modal-overlay" id="modal-receive-payment">
+    <div class="modal-content" style="max-width: 450px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Receive Payment (Clear Udhaar)</h3>
+        <button class="modal-close" onclick="closeModal('modal-receive-payment')">Close</button>
+      </div>
+      <form id="form-receive-payment">
+        <input type="hidden" id="pay-customer-id">
+        <div style="margin-bottom: 1rem;">
+          <div style="font-size: 1.05rem; font-weight: 700;" id="pay-customer-name">Customer Name</div>
+          <div style="font-size: 0.88rem; color: var(--accent-red); font-weight: 700; margin-top: 0.2rem;" id="pay-customer-balance">
+            Total Pending Udhaar: ₹0.00
+          </div>
+          <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">
+            * Payment automatically clears the oldest pending invoices first.
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">Payment Amount Received (₹) *</label>
+          <input type="number" id="pay-amount-input" class="search-input" style="width: 100%;" min="1" step="any" required placeholder="Enter amount">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-receive-payment')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Confirm Payment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. Customer Purchase History Modal -->
+  <div class="modal-overlay" id="modal-customer-history">
+    <div class="modal-content" style="max-width: 650px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="cust-history-title">Customer Purchase History</h3>
+        <button class="modal-close" onclick="closeModal('modal-customer-history')">Close</button>
+      </div>
+      <div class="table-responsive" style="max-height: 380px;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Bill ID</th>
+              <th>Date</th>
+              <th>Total</th>
+              <th>Paid</th>
+              <th>Udhaar</th>
+              <th>Receipt</th>
+            </tr>
+          </thead>
+          <tbody id="cust-history-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Printable Bill Receipt Modal -->
+  <div class="modal-overlay" id="modal-receipt">
+    <div class="modal-content" style="max-width: 440px;">
+      <div class="modal-header no-print">
+        <h3 class="modal-title">Printable Receipt</h3>
+        <button class="modal-close" onclick="closeModal('modal-receipt')">Close</button>
+      </div>
+
+      <!-- Printable Area -->
+      <div id="printable-area">
+        <div class="printable-receipt" id="receipt-content">
+          <!-- Dynamically generated receipt formatted for printing -->
+        </div>
+      </div>
+
+      <div class="no-print" style="display: flex; justify-content: space-between; gap: 0.5rem; margin-top: 1rem;">
+        <button class="btn btn-outline" onclick="closeModal('modal-receipt')">Close</button>
+        <button class="btn btn-primary" onclick="window.print()">
+          Print Receipt
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Daily Closing Report Modal -->
+  <div class="modal-overlay" id="modal-closing-report">
+    <div class="modal-content" style="max-width: 580px;">
+      <div class="modal-header no-print">
+        <h3 class="modal-title">Daily Closing Reconciliation Report</h3>
+        <button class="modal-close" onclick="closeModal('modal-closing-report')">Close</button>
+      </div>
+
+      <div id="printable-closing-report" class="printable-receipt">
+        <!-- Rendered daily report sheet -->
+      </div>
+
+      <div class="no-print" style="display: flex; justify-content: space-between; gap: 0.5rem; margin-top: 1rem;">
+        <button class="btn btn-outline" onclick="closeModal('modal-closing-report')">Close</button>
+        <button class="btn btn-primary" onclick="printClosingReport()">
+          Print Closing Report
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. Create Staff Modal (Owner Only) -->
+  <div class="modal-overlay" id="modal-staff">
+    <div class="modal-content" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Create Staff Member</h3>
+        <button class="modal-close" onclick="closeModal('modal-staff')">Close</button>
+      </div>
+      <form id="form-staff">
+        <div style="margin-bottom: 1rem;">
+          <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">Staff Name *</label>
+          <input type="text" id="staff-name" class="search-input" style="width: 100%;" required placeholder="e.g. Suresh Kumar">
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">Username (for staff login) *</label>
+          <input type="text" id="staff-username" class="search-input" style="width: 100%;" required placeholder="e.g. suresh_billing">
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">Phone Number</label>
+          <input type="tel" id="staff-phone" class="search-input" style="width: 100%;" placeholder="Mobile number">
+        </div>
+        <div style="margin-bottom: 1.5rem;">
+          <label style="font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.35rem;">Staff Password (min. 6 characters) *</label>
+          <input type="password" id="staff-password" class="search-input" style="width: 100%;" required placeholder="Minimum 6 characters">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+          <button type="button" class="btn btn-outline" onclick="closeModal('modal-staff')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main JavaScript App Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
