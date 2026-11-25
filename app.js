@@ -99,7 +99,7 @@ function logout() {
 // -------------------------------------------------------------
 function navigateToView(viewId) {
   // Role check: Staff is only permitted to access Billing and Settings
-  if (currentUser.role === 'staff' && viewId !== 'billing' && viewId !== 'settings') {
+  if (currentUser.role === 'staff' && viewId !== 'billing' && viewId !== 'settings' && viewId !== 'inventory') {
     viewId = 'billing';
   }
 
@@ -521,9 +521,9 @@ function renderInventoryTable() {
         </td>
         <td>
           <div style="display: flex; gap: 0.35rem;">
-            <button class="btn btn-sm btn-outline" title="Edit" onclick="openEditProductModal('${p.id}')">Edit</button>
+            ${currentUser.role === 'owner' ? `<button class="btn btn-sm btn-outline" title="Edit" onclick="openEditProductModal('${p.id}')">Edit</button>` : ''}
             <button class="btn btn-sm btn-outline" title="Restock" onclick="openRestockModal('${p.id}')">Restock</button>
-            <button class="btn btn-sm btn-danger" title="Delete" onclick="deleteProduct('${p.id}')">Delete</button>
+            ${currentUser.role === 'owner' ? `<button class="btn btn-sm btn-danger" title="Delete" onclick="deleteProduct('${p.id}')">Delete</button>` : ''}
           </div>
         </td>
       </tr>

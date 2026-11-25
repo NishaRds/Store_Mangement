@@ -380,9 +380,7 @@ app.put('/api/products-sync/:shopId', requireAuth, requireShopAccess, (req, res)
       // Ensure staff doesn't remove products or alter prices/names
       for (const p of products) {
         const exist = existingMap.get(p.id);
-        if (!exist) {
-          return res.status(403).json({ error: 'Staff is not permitted to create new products' });
-        }
+               if (!exist) continue; // staff may add new products (CSV import)
         if (exist.price !== p.price || exist.name !== p.name) {
           return res.status(403).json({ error: 'Staff is not permitted to modify product prices or details' });
         }
