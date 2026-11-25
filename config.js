@@ -1,1 +1,1 @@
-window.STOCKFLOW_API = "http://localhost:3000/api";
+window.STOCKFLOW_API = "https://store-management-api-s89x.onrender.com/api";
